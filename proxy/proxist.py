@@ -49,14 +49,15 @@ class Grabber(object):
         ProxyHandler = Proxy(self.entries)
         ip_port = ProxyHandler.Extract(self.entries[:count]) # returns [(ip, port), ...]
         for proxy in ip_port:
+            proxy_addr = proxy[0]+":"+proxy[1]+"\n"
             status, country, proto, anon, speed = ProxyHandler.Check(proxy)
             log = fmt%(status, proxy[0], proxy[1], country, proto, anon, speed)
             print log
             if hFile:
                 if saveall:
                     hFile.write(log+"\n")
-                else:
-                    hFile.write(proxy[0]+":"+proxy[1]+"\n")
+                elif status != "fail":
+                    hFile.write(proxy_addr)
         if hFile:
             hFile.close()
     def NextPage(self):
@@ -76,7 +77,7 @@ class Grabber(object):
     def GetCount(self, html):
         pages = re.findall(self.pattern['pages'], html)
         return int(pages[-1]) # last page
-    
+
 class Proxy(object):
     def __init__(self, entry):
         self.pattern = {
